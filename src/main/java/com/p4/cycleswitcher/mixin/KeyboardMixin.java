@@ -52,6 +52,9 @@ public class KeyboardMixin {
                 return;
             }
             case 296: {
+                if (this.client.world.getLevelProperties().isDifficultyLocked()) {
+                    addDebugMessage(Formatting.YELLOW, new TranslatableText("debug.difficulties.error2"));
+                }
                 if (this.client.player.hasPermissionLevel(2)) {
                     this.client.setScreen(new DifficultySelectionScreen());
                 } else addDebugMessage(Formatting.YELLOW, new TranslatableText("debug.difficulties.error"));
