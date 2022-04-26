@@ -1,0 +1,28 @@
+{
+  "weather.clear": "Helder",
+  "weather.rain": "Regen",
+  "weather.thunder": "Onweer",
+  "debug.weathers.select_next": "%s Volgende",
+  "debug.weathers.press_f5": "[ F5 ]",
+  "debug.weathers.help": "F3 + F5 = Open weer wisselaar",
+  "debug.weathers.error": "Kan weer wisselaar niet openen; geen permissie",
+
+  "time.day": "Dag",
+  "time.noon": "Middag",
+  "time.night": "Nacht",
+  "time.midnight": "Middernacht",
+  "debug.times.select_next": "%s Volgende",
+  "debug.times.press_f6": "[ F6 ]",
+  "debug.times.help": "F3 + F6 = Open tijd wisselaar",
+  "debug.times.error": "Kan tijd wisselaar niet opene; geen permissie",
+
+  "difficulty.peaceful": "Vredig",
+  "difficulty.easy": "Makkelijk",
+  "difficulty.normal": "Normaal",
+  "difficulty.hard": "Moeilijk",
+  "debug.difficulties.select_next": "%s Volgende",
+  "debug.difficulties.press_f7": "[ F7 ]",
+  "debug.difficulties.help": "F3 + F7 = Open moeilijkheid wisselaar",
+  "debug.difficulties.error": "Kan moeilijkheid wisselaar niet openen; geen permissie",
+  "debug.difficulties.error2": "Kan moeilijkheid wisselaar niet openen; de moeilijkheid is vergrendeld"
+}

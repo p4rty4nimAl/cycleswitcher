@@ -34,6 +34,7 @@ public class KeyboardMixin {
                 ChatHud chatHud = MinecraftClient.getInstance().inGameHud.getChatHud();
                 chatHud.addMessage(new TranslatableText("debug.weathers.help"));
                 chatHud.addMessage(new TranslatableText("debug.times.help"));
+                chatHud.addMessage(new TranslatableText("debug.difficulties.help"));
                 cir.setReturnValue(true);
                 return;
             }
