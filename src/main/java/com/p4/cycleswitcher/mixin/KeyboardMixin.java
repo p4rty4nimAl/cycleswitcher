@@ -1,8 +1,6 @@
 package com.p4.cycleswitcher.mixin;
 
-import com.p4.cycleswitcher.screen.DifficultySelectionScreen;
-import com.p4.cycleswitcher.screen.TimeSelectionScreen;
-import com.p4.cycleswitcher.screen.WeatherSelectionScreen;
+import com.p4.cycleswitcher.screen.SelectionScreen;
 import net.minecraft.client.Keyboard;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.ChatHud;
@@ -40,14 +38,14 @@ public class KeyboardMixin {
             }
             case 294: {
                 if (this.client.player.hasPermissionLevel(2)) {
-                    this.client.setScreen(new WeatherSelectionScreen());
+                    this.client.setScreen(new SelectionScreen("weather", key));
                 } else addDebugMessage(Formatting.YELLOW, new TranslatableText("debug.weathers.error"));
                 cir.setReturnValue(true);
                 return;
             }
             case 295: {
                 if (this.client.player.hasPermissionLevel(2)) {
-                    this.client.setScreen(new TimeSelectionScreen());
+                    this.client.setScreen(new SelectionScreen("time", key));
                 } else addDebugMessage(Formatting.YELLOW, new TranslatableText("debug.times.error"));
                 cir.setReturnValue(true);
                 return;
@@ -59,8 +57,13 @@ public class KeyboardMixin {
                     return;
                 }
                 if (this.client.player.hasPermissionLevel(2)) {
-                    this.client.setScreen(new DifficultySelectionScreen());
+                    this.client.setScreen(new SelectionScreen("difficulty", key));
                 } else addDebugMessage(Formatting.YELLOW, new TranslatableText("debug.difficulties.error"));
+                cir.setReturnValue(true);
+                return;
+            }
+            case 297: {
+                this.client.setScreen(new SelectionScreen("weather", key));
                 cir.setReturnValue(true);
                 return;
             }
