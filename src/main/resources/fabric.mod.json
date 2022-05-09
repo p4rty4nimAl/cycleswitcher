@@ -3,7 +3,7 @@
   "id": "cycleswitcher",
   "version": "${version}",
   "name": "CycleSwitcher",
-  "description": "Adds menus similar to the f3 + f4 gamemode switcher for weather and daylight.",
+  "description": "Adds menus similar to the F3 + F4 gamemode switcher for weather and daylight.",
   "authors": [
     "p4"
   ],
