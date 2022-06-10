@@ -18,6 +18,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
@@ -43,7 +44,7 @@ public class SelectionScreen extends Screen {
 
     public SelectionScreen(String selectionCategory, int cycleKey) {
             super(NarratorManager.EMPTY);
-            this.SELECT_NEXT_TEXT = Text.translatable("debug."+ selectionCategory + ".select_next", Text.translatable("debug." + selectionCategory + ".press_key").formatted(Formatting.AQUA));
+            this.SELECT_NEXT_TEXT = Text.translatableContent("debug."+ selectionCategory + ".select_next", Text.translatableContent("debug." + selectionCategory + ".press_key").formatted(Formatting.AQUA));
             this.currentSelection = Selection.of(this.lastSelection);
             this.selectionCategory = selectionCategory;
             this.cycleKey = cycleKey;
@@ -110,7 +111,7 @@ public class SelectionScreen extends Screen {
                 return;
             }
             Selection newSelection = selection.get();
-            client.player.sendCommand(newSelection.getCommand());
+            client.player.sendChatMessage(newSelection.getCommand());
             this.lastSelection = newSelection;
         }
 
@@ -141,19 +142,19 @@ public class SelectionScreen extends Screen {
         @Environment(value= EnvType.CLIENT)
         enum Selection {
             //WEATHERS
-            CLEAR(Text.translatable("weather.clear"), "weather clear", new ItemStack(Items.SUNFLOWER), "weather"),
-            RAIN(Text.translatable("weather.rain"), "weather rain", new ItemStack(Items.WATER_BUCKET), "weather"),
-            THUNDER(Text.translatable("weather.thunder"), "weather thunder", new ItemStack(Blocks.LIGHTNING_ROD), "weather"),
+            CLEAR(Text.translatableContent("weather.clear"), "/weather clear", new ItemStack(Items.SUNFLOWER), "weather"),
+            RAIN(Text.translatableContent("weather.rain"), "/weather rain", new ItemStack(Items.WATER_BUCKET), "weather"),
+            THUNDER(Text.translatableContent("weather.thunder"), "/weather thunder", new ItemStack(Blocks.LIGHTNING_ROD), "weather"),
             //TIMES
-            DAY(Text.translatable("time.day"), "time set day", new ItemStack(Blocks.ORANGE_CONCRETE), "time"),
-            NOON(Text.translatable("time.noon"), "time set noon", new ItemStack(Items.SUNFLOWER), "time"),
-            NIGHT(Text.translatable("time.night"), "time set night", new ItemStack(Items.INK_SAC), "time"),
-            MIDNIGHT(Text.translatable("time.midnight"), "time set midnight", new ItemStack(Items.BLACK_DYE), "time"),
+            DAY(Text.translatableContent("time.day"), "/time set day", new ItemStack(Blocks.ORANGE_CONCRETE), "time"),
+            NOON(Text.translatableContent("time.noon"), "/time set noon", new ItemStack(Items.SUNFLOWER), "time"),
+            NIGHT(Text.translatableContent("time.night"), "/time set night", new ItemStack(Items.INK_SAC), "time"),
+            MIDNIGHT(Text.translatableContent("time.midnight"), "/time set midnight", new ItemStack(Items.BLACK_DYE), "time"),
             //DIFFICULTIES
-            PEACEFUL(Text.translatable("difficulty.peaceful"), "difficulty peaceful", new ItemStack(Items.IRON_HOE), "difficulty"),
-            EASY(Text.translatable("difficulty.easy"), "difficulty easy", new ItemStack(Items.WOODEN_SWORD), "difficulty"),
-            NORMAL(Text.translatable("difficulty.normal"), "difficulty normal", new ItemStack(Items.COOKED_BEEF), "difficulty"),
-            HARD(Text.translatable("difficulty.hard"), "difficulty hard", new ItemStack(Blocks.SKELETON_SKULL), "difficulty");
+            PEACEFUL(Text.translatableContent("difficulty.peaceful"), "/difficulty peaceful", new ItemStack(Items.IRON_HOE), "difficulty"),
+            EASY(Text.translatableContent("difficulty.easy"), "/difficulty easy", new ItemStack(Items.WOODEN_SWORD), "difficulty"),
+            NORMAL(Text.translatableContent("difficulty.normal"), "/difficulty normal", new ItemStack(Items.COOKED_BEEF), "difficulty"),
+            HARD(Text.translatableContent("difficulty.hard"), "/difficulty hard", new ItemStack(Blocks.SKELETON_SKULL), "difficulty");
 
             private static final Selection[] VALUES;
             final Text text;
