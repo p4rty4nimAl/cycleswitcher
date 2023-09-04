@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "cycleswitcher",
   "version": "${version}",
-  "name": "CycleSwitcher",
+  "name": "Cycle Switcher",
   "description": "Adds menus similar to the F3 + F4 gamemode switcher for weather and daylight.",
   "authors": [
     "p4"
@@ -15,15 +15,14 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "com.p4.cycleswitcher.CycleSwitcher"
     ]
   },
   "mixins": [
     "cycleswitcher.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.14.6",
-    "fabric": "*",
-    "minecraft": "1.19"
+    "fabricloader": ">=0.14.22",
+    "fabric-api": "*",
+    "minecraft": "1.19.4"
   }
 }

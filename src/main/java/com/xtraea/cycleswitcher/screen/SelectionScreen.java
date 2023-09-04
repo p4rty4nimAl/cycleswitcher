@@ -1,4 +1,4 @@
-package com.p4.cycleswitcher.screen;
+package com.xtraea.cycleswitcher.screen;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -31,20 +31,22 @@ public class SelectionScreen extends Screen {
         static final Identifier TEXTURE = new Identifier("textures/gui/container/gamemode_switcher.png");
         private final int UI_WIDTH;
         private final Text SELECT_NEXT_TEXT;
-        private final Optional<Selection> currentSelection;
-        private Optional<Selection> selection = Optional.empty();
+        private Optional<Selection> selection;
         private int lastMouseX;
         private int lastMouseY;
         private boolean mouseUsedForSelection;
         private final List<ButtonWidget> selectionButtons = Lists.newArrayList();
-        private Selection lastSelection;
+        private static Selection[] lastSelection = new Selection[3];
+        //Weather, Time, Difficulty
+        private int lastSelectionTypeIndex;
         private final String selectionCategory;
         private final int cycleKey;
 
     public SelectionScreen(String selectionCategory, int cycleKey) {
             super(NarratorManager.EMPTY);
+            this.lastSelectionTypeIndex = selectionCategory.equals("weather") ? 0 : selectionCategory.equals("time") ? 1 : 2;
             this.SELECT_NEXT_TEXT = Text.translatable("debug."+ selectionCategory + ".select_next", Text.translatable("debug." + selectionCategory + ".press_key").formatted(Formatting.AQUA));
-            this.currentSelection = Selection.of(this.lastSelection);
+            this.selection = Selection.of(lastSelection[lastSelectionTypeIndex]);
             this.selectionCategory = selectionCategory;
             this.cycleKey = cycleKey;
             ArrayList<Integer> templist = new ArrayList<>();
@@ -59,19 +61,24 @@ public class SelectionScreen extends Screen {
         @Override
         protected void init() {
             super.init();
-            if (lastSelection != null) {
-                this.selection = this.lastSelection.next();
-            } else for (int i = 0; i < Selection.VALUES.length; ++i) {
+            int itemCount = 0;
+            for (int i = 0; i < Selection.VALUES.length; ++i) {
+                if (Objects.equals(Selection.VALUES[i].selectionType, this.selectionCategory)) {
+                    this.selectionButtons.add(new ButtonWidget(
+                            Selection.VALUES[i],
+                            this.width / 2 - UI_WIDTH / 2 + itemCount * 31,
+                            this.height / 2 - 31
+                    ));
+                    itemCount++;
+                }
+            }
+            for (int i = 0; i < Selection.VALUES.length; ++i) {
                 if (Objects.equals(Selection.VALUES[i].selectionType, this.selectionCategory)) {
                     this.selection = Selection.VALUES[i].next();
                 }
             }
-            int j = 0;
-            for (int i = 0; i < Selection.VALUES.length; ++i) {
-                if (Objects.equals(Selection.VALUES[i].selectionType, this.selectionCategory)) {
-                    this.selectionButtons.add(new ButtonWidget(Selection.VALUES[i], this.width / 2 - UI_WIDTH / 2 + j * 31, this.height / 2 - 31));
-                    j++;
-                }
+            if (lastSelection[lastSelectionTypeIndex] != null) {
+                this.selection = Optional.of(lastSelection[lastSelectionTypeIndex]);
             }
         }
 
@@ -80,7 +87,7 @@ public class SelectionScreen extends Screen {
             if (this.checkForClose()) {
                 return;
             }
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShader(GameRenderer::getPositionTexProgram);
             matrices.push();
             RenderSystem.enableBlend();
             RenderSystem.setShaderTexture(0, TEXTURE);
@@ -89,8 +96,8 @@ public class SelectionScreen extends Screen {
             drawTexture(matrices, i, j, 0.0f, 0.0f, 125, 75, 128, 128);
             matrices.pop();
             super.render(matrices, mouseX, mouseY, delta);
-            this.selection.ifPresent(selection -> drawCenteredText(matrices, this.textRenderer, selection.getText(), this.width / 2, this.height / 2 - 31 - 20, -1));
-            drawCenteredText(matrices, this.textRenderer, SELECT_NEXT_TEXT, this.width / 2, this.height / 2 + 5, 0xFFFFFF);
+            this.selection.ifPresent(selection -> drawCenteredTextWithShadow(matrices, this.textRenderer, selection.getText(), this.width / 2, this.height / 2 - 31 - 20, -1));
+            drawCenteredTextWithShadow(matrices, this.textRenderer, SELECT_NEXT_TEXT, this.width / 2, this.height / 2 + 5, 0xFFFFFF);
             if (!this.mouseUsedForSelection) {
                 this.lastMouseX = mouseX;
                 this.lastMouseY = mouseY;
@@ -106,12 +113,44 @@ public class SelectionScreen extends Screen {
         }
 
         private void apply(MinecraftClient client, Optional<Selection> selection) {
-            if (client.interactionManager == null || client.player == null || !selection.isPresent()) {
-                return;
-            }
             Selection newSelection = selection.get();
-            client.player.sendCommand(newSelection.getCommand());
-            this.lastSelection = newSelection;
+            client.player.networkHandler.sendCommand(newSelection.getCommand());
+            switch (lastSelectionTypeIndex) {
+                case 0 -> {
+                    if (this.client.world.getThunderGradient(1) > 0) {
+                        lastSelection[lastSelectionTypeIndex] = Selection.THUNDER;
+                    } else if (this.client.world.getRainGradient(1) > 0) {
+                        lastSelection[lastSelectionTypeIndex] = Selection.RAIN;
+                    } else lastSelection[lastSelectionTypeIndex] = Selection.CLEAR;
+                }
+                case 1 -> {
+                    long time = this.client.world.getTimeOfDay();
+                    if (time > 18000) {
+                        lastSelection[lastSelectionTypeIndex] = Selection.MIDNIGHT;
+                    } else if (time > 13000) {
+                        lastSelection[lastSelectionTypeIndex] = Selection.NIGHT;
+                    } else if (time > 6000) {
+                        lastSelection[lastSelectionTypeIndex] = Selection.NOON;
+                    } else lastSelection[lastSelectionTypeIndex] = Selection.DAY;
+                }
+                case 2 -> {
+                    int difficulty = this.client.world.getDifficulty().getId();
+                    switch (difficulty) {
+                        case 0 -> {
+                            lastSelection[lastSelectionTypeIndex] = Selection.PEACEFUL;
+                        }
+                        case 1 -> {
+                            lastSelection[lastSelectionTypeIndex] = Selection.EASY;
+                        }
+                        case 2 -> {
+                            lastSelection[lastSelectionTypeIndex] = Selection.NORMAL;
+                        }
+                        case 3 -> {
+                            lastSelection[lastSelectionTypeIndex] = Selection.HARD;
+                        }
+                    }
+                }
+            }
         }
 
         private boolean checkForClose() {
@@ -138,7 +177,7 @@ public class SelectionScreen extends Screen {
             return false;
         }
 
-        @Environment(value= EnvType.CLIENT)
+        @Environment(value=EnvType.CLIENT)
         enum Selection {
             //WEATHERS
             CLEAR(Text.translatable("weather.clear"), "weather clear", new ItemStack(Items.SUNFLOWER), "weather"),
@@ -168,8 +207,8 @@ public class SelectionScreen extends Screen {
                 this.selectionType = selectionType;
             }
 
-            void renderIcon(ItemRenderer itemRenderer, int x, int y) {
-                itemRenderer.renderInGuiWithOverrides(this.icon, x, y);
+            void renderIcon(MatrixStack matrices, ItemRenderer itemRenderer, int x, int y) {
+                itemRenderer.renderInGuiWithOverrides(matrices, this.icon, x, y);
             }
 
             Text getText() {
@@ -192,7 +231,7 @@ public class SelectionScreen extends Screen {
                         return nextDifficulty();
                     }
                 }
-                return Optional.of(CLEAR);
+                return Optional.empty();
             }
             Optional<Selection> nextWeather() {
                 switch (this) {
@@ -302,16 +341,13 @@ public class SelectionScreen extends Screen {
             public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
                 MinecraftClient minecraftClient = MinecraftClient.getInstance();
                 this.drawBackground(matrices, minecraftClient.getTextureManager());
-                this.selection.renderIcon(SelectionScreen.this.itemRenderer, this.x + 5, this.y + 5);
+                this.selection.renderIcon(matrices, SelectionScreen.this.itemRenderer, this.getX() + 5, this.getY() + 5);
                 if (this.selected) {
                     this.drawSelectionBox(matrices, minecraftClient.getTextureManager());
                 }
             }
-
             @Override
-            public void appendNarrations(NarrationMessageBuilder builder) {
-                this.appendDefaultNarrations(builder);
-            }
+            protected void appendClickableNarrations(NarrationMessageBuilder builder) {}
 
             @Override
             public boolean isHovered() {
@@ -323,19 +359,19 @@ public class SelectionScreen extends Screen {
             }
 
             private void drawBackground(MatrixStack matrices, TextureManager textureManager) {
-                RenderSystem.setShader(GameRenderer::getPositionTexShader);
+                RenderSystem.setShader(GameRenderer::getPositionTexProgram);
                 RenderSystem.setShaderTexture(0, TEXTURE);
                 matrices.push();
-                matrices.translate(this.x, this.y, 0.0);
+                matrices.translate(this.getX(), this.getY(), 0.0);
                 drawTexture(matrices, 0, 0, 0.0f, 75.0f, 26, 26, 128, 128);
                 matrices.pop();
             }
 
             private void drawSelectionBox(MatrixStack matrices, TextureManager textureManager) {
-                RenderSystem.setShader(GameRenderer::getPositionTexShader);
+                RenderSystem.setShader(GameRenderer::getPositionTexProgram);
                 RenderSystem.setShaderTexture(0, TEXTURE);
                 matrices.push();
-                matrices.translate(this.x, this.y, 0.0);
+                matrices.translate(this.getX(), this.getY(), 0.0);
                 drawTexture(matrices, 0, 0, 26.0f, 75.0f, 26, 26, 128, 128);
                 matrices.pop();
             }

@@ -1,6 +1,6 @@
-package com.p4.cycleswitcher.mixin;
+package com.xtraea.cycleswitcher.mixin;
 
-import com.p4.cycleswitcher.screen.SelectionScreen;
+import com.xtraea.cycleswitcher.screen.SelectionScreen;
 import net.minecraft.client.Keyboard;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.ChatHud;
